@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Erynith Movie Web Instances</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 10000;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+    }
+    .nav {
+      display: flex;
+      gap: 20px;
+    }
+    .nav a {
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .iframe-container {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      width: 100%;
+      height: calc(100vh - 60px);
+      overflow: hidden;
+      background: black;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+  <script>
+    // Function to open a URL inside the iframe
+    function openInIframe(url) {
+      const iframe = document.getElementById('movieFrame');
+      iframe.src = url;
+      // Update the browser URL (simulation)
+      history.pushState(null, '', '/' + url.split('.vercel.app/')[1]);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Navigation button event listeners
+      document.querySelector('.logo').addEventListener('click', function () {
+        openInIframe('https://primeflix-web.vercel.app/');
+      });
+      document.querySelector('.nav a:nth-child(1)').addEventListener('click', function (event) {
+        event.preventDefault();
+        openInIframe('https://primeflix-web.vercel.app/');
+      });
+      document.querySelector('.nav a:nth-child(2)').addEventListener('click', function (event) {
+        event.preventDefault();
+        openInIframe('https://primeflix-web.vercel.app/movie');
+      });
+      document.querySelector('.nav a:nth-child(3)').addEventListener('click', function (event) {
+        event.preventDefault();
+        openInIframe('https://primeflix-web.vercel.app/tv');
+      });
+
+      // Attempt to sync the iframe's URL with the parent (works only for same-origin)
+      const iframe = document.getElementById('movieFrame');
+      iframe.addEventListener('load', function () {
+        try {
+          const iframePath = iframe.contentWindow.location.pathname;
+          history.replaceState(null, '', iframePath);
+        } catch (e) {
+          // Cross-origin restrictions may prevent access here.
+        }
+      });
+
+      // Handle browser back/forward buttons
+      window.addEventListener('popstate', function () {
+        const currentPath = location.pathname;
+        openInIframe('https://primeflix-web.vercel.app' + currentPath);
+      });
+    });
+
+    // Listen for fullscreen change events to lock/unlock orientation
+    document.addEventListener('fullscreenchange', function () {
+      if (document.fullscreenElement) {
+        // When any element enters fullscreen, attempt to lock orientation to landscape
+        if (screen.orientation && screen.orientation.lock) {
+          screen.orientation.lock('landscape').catch(function (err) {
+            console.error('Failed to lock orientation:', err);
+          });
+        }
+      } else {
+        // When exiting fullscreen, attempt to unlock orientation
+        if (screen.orientation && screen.orientation.unlock) {
+          // Some browsers don't support unlock; error handling is in place.
+          try {
+            screen.orientation.unlock();
+          } catch (err) {
+            console.error('Failed to unlock orientation:', err);
+          }
+        }
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">ERYNITH</div>
+    <div class="nav">
+      <a href="#">HOME</a>
+      <a href="#">MOVIES</a>
+      <a href="#">TV SHOWS</a>
+    </div>
+  </div>
+  <div class="iframe-container">
+    <iframe 
+      src="https://primeflix-web.vercel.app/" 
+      id="movieFrame" 
+      allowfullscreen
+    ></iframe>
+  </div>
+</body>
+</html>
